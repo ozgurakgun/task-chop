@@ -68,7 +68,7 @@ instance Pretty Task where
     pretty Task{..} = vcat $  [ pretty descr
                               , "Status:" <+> pretty status
                               ]
-                           ++ [ pretty time <> ":" <+> pretty action | (time, action) <- actionTimes ]
+                           ++ [ pretty action <> ":" <+> pretty time | (time, action) <- actionTimes ]
                            ++ map (nest 4 . pretty) children
 
 instance Pretty TaskAction where pretty = pretty . show
