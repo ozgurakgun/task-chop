@@ -3,13 +3,13 @@ module IO where
 import Types
 
 -- directory
-import System.Directory
+import System.Directory ( createDirectoryIfMissing, doesFileExist, getHomeDirectory )
 
 -- filepath
-import System.FilePath
+import System.FilePath ( (</>) )
 
 -- bytestring
-import Data.ByteString.Lazy as BS
+import Data.ByteString.Lazy as BS ( readFile, writeFile )
 
 -- aeson
 import Data.Aeson ( decode )

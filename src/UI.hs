@@ -3,14 +3,14 @@
 module UI ( UI(..), NextCmd(..), ui ) where
 
 -- base
--- import Data.Data ( Data, Typeable )
+import Data.Data ( Data, Typeable )
 import GHC.Generics ( Generic )
 
 -- text
-import Data.Text
+import Data.Text ( Text )
 
 -- cmdargs
-import System.Console.CmdArgs
+import System.Console.CmdArgs ( (&=), modes, help, typ, def, argPos, args, name, explicit, auto, program, summary )
 
 
 ui :: UI

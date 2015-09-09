@@ -8,6 +8,7 @@ module Types
     , TaskAction(..)
     , TaskStatus(..)
     , sameTask
+    , filterDone
     ) where
 
 import Pretty
@@ -15,6 +16,8 @@ import Pretty
 -- base
 import Data.Data ( Data, Typeable )
 import GHC.Generics ( Generic )
+import Data.List ( groupBy )
+import Data.Function ( on )
 
 -- time
 import Data.Time ( UTCTime )
@@ -74,8 +77,9 @@ instance Pretty Task where
     pretty Task{..} = vcat $  [ pretty descr
                               , padded 12 "Status"      <> ":" <+> pretty status
                               ]
-                           ++ [ padded 12 (show action) <> ":" <+> pretty time
-                              | (time, action) <- actionTimes
+                           ++ [ padded 12 (show action) <> ":" <+> prettyList id "," (map (pretty . fst) bunch)
+                              | bunch <- groupBy ((==) `on` snd) actionTimes
+                              , let action = snd (head bunch)
                               ]
                            ++ map (nest 4 . pretty) children
                            ++ [ "" ]
@@ -83,3 +87,10 @@ instance Pretty Task where
 instance Pretty TaskAction where pretty = pretty . show
 
 instance Pretty TaskStatus where pretty = pretty . show
+
+
+filterDone :: [Task] -> [Task]
+filterDone [] = []
+filterDone (t:ts)
+    | status t == Done = filterDone ts
+    | otherwise        = t { children = filterDone (children t) } : filterDone ts

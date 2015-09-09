@@ -25,30 +25,28 @@ main = do
     input <- cmdArgs ui
     case input of
         Add t ts -> do
-            let descr = pack (unwords (t:ts))
+            let packed = pack (unwords (t:ts))
             now <- getCurrentTime
             Tasks tasks <- readTasks
-            writeTasks (Tasks (Task descr [(now, Created)] [] NotDoneYet : tasks))
+            writeTasks (Tasks (Task packed [(now, Created)] [] NotDoneYet : tasks))
         Next -> do
             tasks <- readTasks
             case calcNext tasks of
                 Nothing -> nothingToDo
                 Just next -> do
-                    putStrLn (renderWide next)
+                    putStrLn (renderWide (next { children = filterDone (children next) }))
                     putStrLn ""
                     cmd <- getNextCmd
                     now <- getCurrentTime
                     case applyNextCmd now cmd next tasks of
                         Nothing -> fail "Something Went Wrong (TM)"
                         Just tasks' -> writeTasks tasks'
-        List uiListAll -> do
+        List{} -> do
             Tasks tasks0 <- readTasks
-            let filterDone t | status t == Done = []
-                filterDone t = [t { children = concatMap filterDone (children t) }]
             let tasks =
-                    if uiListAll
+                    if uiListAll input
                         then tasks0
-                        else concatMap filterDone tasks0
+                        else filterDone tasks0
             if null tasks
                 then nothingToDo
                 else putStrLn (renderWide (Tasks tasks))
@@ -65,10 +63,10 @@ getNextCmd = do
         "defer" -> return Defer
         "split" -> do
             putStrLn "Enter a list of subtasks. Terminate by entering a single dot."
-            children <- getChildren 1
-            if null children
+            children_ <- getChildren 1
+            if null children_
                 then fail "No subtasks given. Aborting."
-                else return (Split (map pack children))
+                else return (Split (map pack children_))
         _ -> getNextCmd
 
 getChildren :: Int -> IO [String]
