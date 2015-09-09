@@ -26,7 +26,11 @@ ui = modes
     , Next                      &= name "next"
                                 &= explicit
                                 &= help "Wanna do something? Here is something you can do!"
-    , List                      &= name "list"
+    , List
+        { uiListAll = False     &= name "all"
+                                &= explicit
+                                &= help "List all tasks, i.e. do not filter out those that are done."
+        }                       &= name "list"
                                 &= explicit
                                 &= help "List all the tasks."
                                 &= auto
@@ -38,7 +42,7 @@ ui = modes
 data UI
     = Add { uiAddText :: String, uiAddTextMore :: [String] }
     | Next
-    | List
+    | List { uiListAll :: Bool }
     deriving (Eq, Ord, Show, Data, Typeable, Generic)
 
 data NextCmd

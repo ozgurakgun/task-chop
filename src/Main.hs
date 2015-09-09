@@ -32,7 +32,7 @@ main = do
         Next -> do
             tasks <- readTasks
             case calcNext tasks of
-                Nothing -> putStrLn "Nothing to do! (Not sure if that's a good thing or a bad thing)"
+                Nothing -> nothingToDo
                 Just next -> do
                     putStrLn (renderWide next)
                     putStrLn ""
@@ -41,9 +41,20 @@ main = do
                     case applyNextCmd now cmd next tasks of
                         Nothing -> fail "Something Went Wrong (TM)"
                         Just tasks' -> writeTasks tasks'
-        List -> do
-            tasks <- readTasks
-            putStrLn (renderWide tasks)
+        List uiListAll -> do
+            Tasks tasks0 <- readTasks
+            let filterDone t | status t == Done = []
+                filterDone t = [t { children = concatMap filterDone (children t) }]
+            let tasks =
+                    if uiListAll
+                        then tasks0
+                        else concatMap filterDone tasks0
+            if null tasks
+                then nothingToDo
+                else putStrLn (renderWide (Tasks tasks))
+
+nothingToDo :: IO ()
+nothingToDo = putStrLn "Nothing to do! (Not sure if that's a good thing or a bad thing)"
 
 getNextCmd :: IO NextCmd
 getNextCmd = do
