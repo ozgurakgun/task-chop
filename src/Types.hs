@@ -7,6 +7,7 @@ module Types
     , Task(..)
     , TaskAction(..)
     , TaskStatus(..)
+    , sameTask
     ) where
 
 import Pretty
@@ -30,16 +31,21 @@ data Tasks = Tasks [Task]
     deriving (Eq, Ord, Show, Data, Typeable, Generic)
 
 data Task = Task { descr        :: Text
-                 , actionTimes  :: [(UTCTime, TaskAction)]
+                 , actionTimes  :: [(UTCTime, TaskAction)]      -- backwards, the earliest is the latest
                  , children     :: [Task]
                  , status       :: TaskStatus
                  }
     deriving (Eq, Ord, Show, Data, Typeable, Generic)
 
-data TaskAction = Created | Deferred | Splitted
+-- | Check if two tasks are the same.
+--   Works by comparing descriptions and creation times.
+sameTask :: Task -> Task -> Bool
+sameTask t1 t2 = (descr t1, last (actionTimes t1)) == (descr t2, last (actionTimes t2))
+
+data TaskAction = Created | Deferred | Splitted | MarkedAsDone
     deriving (Eq, Ord, Show, Data, Typeable, Generic)
 
-data TaskStatus = Done | Active
+data TaskStatus = Done | NotDoneYet
     deriving (Eq, Ord, Show, Data, Typeable, Generic)
 
 instance ToJSON    Tasks      where toJSON    = genericToJSON    jsonOptions
@@ -66,10 +72,13 @@ instance Pretty Tasks where
 
 instance Pretty Task where
     pretty Task{..} = vcat $  [ pretty descr
-                              , "Status:" <+> pretty status
+                              , padded 12 "Status"      <> ":" <+> pretty status
                               ]
-                           ++ [ pretty action <> ":" <+> pretty time | (time, action) <- actionTimes ]
+                           ++ [ padded 12 (show action) <> ":" <+> pretty time
+                              | (time, action) <- actionTimes
+                              ]
                            ++ map (nest 4 . pretty) children
+                           ++ [ "" ]
 
 instance Pretty TaskAction where pretty = pretty . show
 

@@ -12,7 +12,10 @@ import System.FilePath
 import Data.ByteString.Lazy as BS
 
 -- aeson
-import Data.Aeson
+import Data.Aeson ( decode )
+
+-- aeson-pretty
+import Data.Aeson.Encode.Pretty ( encodePretty )
 
 
 getLoc :: IO FilePath
@@ -41,4 +44,4 @@ readTasks = do
 writeTasks :: Tasks -> IO ()
 writeTasks tasks = do
     file <- getLoc
-    BS.writeFile file (encode tasks)
+    BS.writeFile file (encodePretty tasks)

@@ -9,6 +9,7 @@ module Pretty
     , hang, nest, hcat, hsep, vcat, sep
     , prEmpty, prParens, prBrackets, prBraces
     , Doc
+    , padded
     ) where
 
 -- base
@@ -96,3 +97,6 @@ prBrackets = brackets
 
 prBraces :: Doc -> Doc
 prBraces = braces
+
+padded :: Int -> String -> Doc
+padded n s = pretty (s ++ replicate (n - length s) ' ')

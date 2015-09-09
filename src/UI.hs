@@ -1,9 +1,9 @@
 {-# LANGUAGE DeriveDataTypeable, DeriveGeneric #-}
 
-module UI ( UI(..), NextCmds(..), ui ) where
+module UI ( UI(..), NextCmd(..), ui ) where
 
 -- base
-import Data.Data ( Data, Typeable )
+-- import Data.Data ( Data, Typeable )
 import GHC.Generics ( Generic )
 
 -- text
@@ -41,8 +41,8 @@ data UI
     | List
     deriving (Eq, Ord, Show, Data, Typeable, Generic)
 
-data NextCmds
-    = Done
+data NextCmd
+    = MarkAsDone
     | Defer
     | Split [Text]
     deriving (Eq, Ord, Show, Data, Typeable, Generic)
