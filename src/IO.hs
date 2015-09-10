@@ -8,9 +8,6 @@ module IO
 
 import Types
 
--- base
-import Data.List ( nub )
-
 -- directory
 import System.Directory ( createDirectoryIfMissing, doesFileExist, getHomeDirectory, getDirectoryContents )
 
@@ -38,7 +35,10 @@ getContexts :: IO [String]
 getContexts = do
     dir <- getDir
     allFiles <- getDirectoryContents dir
-    return $ nub $ "default" : [ base | (base, ".json") <- map splitExtension allFiles ]
+    return $ "default" : [ base
+                         | (base, ".json") <- map splitExtension allFiles
+                         , base /= "default"
+                         ]
 
 getCurrentContext :: IO String
 getCurrentContext = do
