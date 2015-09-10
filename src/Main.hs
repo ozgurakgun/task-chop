@@ -39,9 +39,11 @@ main = do
                     cmd <- getNextCmd
                     now <- getCurrentTime
                     case applyNextCmd now cmd next tasks of
-                        Nothing -> fail "Something Went Wrong (TM)"
+                        Nothing -> error "Something Went Wrong (TM)"
                         Just tasks' -> writeTasks tasks'
         List{} -> do
+            curr <- getCurrentContext
+            putStrLn $ "[Context: " ++ curr ++ "]"
             Tasks tasks0 <- readTasks
             let tasks =
                     if uiListAll input
@@ -50,6 +52,21 @@ main = do
             if null tasks
                 then nothingToDo
                 else putStrLn (renderWide (Tasks tasks))
+        Context{} ->
+            case uiContextTo input of
+                [] -> do
+                    ctxts <- getContexts
+                    curr  <- getCurrentContext
+                    let widest = maximum (map length ctxts)
+                    putStrLn $ renderWide $ vcat
+                        [ if c == curr
+                            then padded widest c <+> pretty "(active)"
+                            else pretty c
+                        | c <- ctxts ]
+                [ctxt] ->
+                    setCurrentContext ctxt
+                _ ->
+                    error "Was expecting zero or one arguments, don't know what to do now. :("
 
 nothingToDo :: IO ()
 nothingToDo = putStrLn "Nothing to do! (Not sure if that's a good thing or a bad thing)"
@@ -65,7 +82,7 @@ getNextCmd = do
             putStrLn "Enter a list of subtasks. Terminate by entering a single dot."
             children_ <- getChildren 1
             if null children_
-                then fail "No subtasks given. Aborting."
+                then error "No subtasks given. Aborting."
                 else return (Split (map pack children_))
         _ -> getNextCmd
 

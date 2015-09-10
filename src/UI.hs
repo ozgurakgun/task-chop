@@ -18,7 +18,7 @@ ui = modes
     [ Add
         { uiAddText = def       &= typ "TEXT"
                                 &= argPos 0
-        , uiAddTextMore = []    &= typ "TEXT"
+        , uiAddTextMore = []    &= typ "MORE TEXT"
                                 &= args
         }                       &= name "add"
                                 &= explicit
@@ -34,6 +34,13 @@ ui = modes
                                 &= explicit
                                 &= help "List all the tasks."
                                 &= auto
+    , Context
+        { uiContextTo = []      &= typ "CONTEXT"
+                                &= args
+        }                       &= name "context"
+                                &= explicit
+                                &= help "When called without arguments, list all contexts.\n\
+                                        \When called with an argument, switch to that context."
     ]                           &= program "chop"
                                 &= summary "CHOP: a task management tool which let's you avoid\
                                            \ work by chopping and deferring tasks.\
@@ -43,6 +50,7 @@ data UI
     = Add { uiAddText :: String, uiAddTextMore :: [String] }
     | Next
     | List { uiListAll :: Bool }
+    | Context { uiContextTo :: [String] }
     deriving (Eq, Ord, Show, Data, Typeable, Generic)
 
 data NextCmd
